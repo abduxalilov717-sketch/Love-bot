@@ -86,7 +86,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         f"👋 Привет, {name}!\n\n"
         f"🆔 Твой Chat ID: `{chat_id}`\n\n"
-        f"Скопируй этот ID и вставь в CHAT_ID в настройках бота.",
+        f"Связь с админом @skoxisk",
         
     )
 
