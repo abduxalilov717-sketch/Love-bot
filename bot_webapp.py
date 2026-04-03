@@ -13,14 +13,16 @@ logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=lo
 logger = logging.getLogger(__name__)
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = keyboard = [
-    [InlineKeyboardButton("💕 Цитата о любви", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/webapp.html"))],
-    [InlineKeyboardButton("🧠 Викторина про меня", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/quiz.html"))],
-    [InlineKeyboardButton("📸 Наши фото", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/photos.html"))],
-]
+    keyboard = [
+        [InlineKeyboardButton("💕 Цитата о любви", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/webapp.html"))],
+        [InlineKeyboardButton("🧠 Викторина про меня", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/quiz.html"))],
+        [InlineKeyboardButton("📸 Наши фото", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/photos.html"))],
+    ]
+
     reply_markup = InlineKeyboardMarkup(keyboard)
+
     await update.message.reply_text(
-        "Привет! Нажми кнопку ниже чтобы открыть наш календарь памятных дат 💕",
+        "Привет! Выбери раздел ниже 💕",
         reply_markup=reply_markup
     )
 
