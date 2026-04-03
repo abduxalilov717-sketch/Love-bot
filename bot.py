@@ -129,6 +129,13 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"⏰ Автоматическая отправка: каждый день в {SEND_HOUR:02d}:{SEND_MINUTE:02d} UTC",
         
     )
+   async def main():
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+
+    app.add_handler(CommandHandler("start", cmd_start))
+    app.add_handler(CommandHandler("calendar", cmd_calendar))
+
+    app.run_polling()
 
 # ============================================================
 #  ЗАПУСК
