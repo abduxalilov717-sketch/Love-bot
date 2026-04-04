@@ -12,7 +12,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 # ============================================================
 BOT_TOKEN   = "8782299050:AAGhdm8O1LVXUKdvRzi4Gc4Wp7zjuq-Wl4A"   # токен от @BotFather
 CHAT_ID     = "7619305230"  # chat_id девушки (узнай через /start)
-SEND_HOUR   = 7                    # час отправки (по UTC+5 Ташкент = UTC+5)
+SEND_HOUR   = 9                    # час отправки (по UTC+5 Ташкент = UTC+5)
 SEND_MINUTE = 0                    # минута отправки
 # ============================================================
 
