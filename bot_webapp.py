@@ -1,45 +1,74 @@
 import logging
+import httpx
 from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
 BOT_TOKEN = "8782299050:AAGhdm8O1LVXUKdvRzi4Gc4Wp7zjuq-Wl4A"
-
-# ВАЖНО: замени на ссылку где будет лежать webapp.html
-# Например после загрузки на GitHub Pages:
-# WEBAPP_URL = "https://abduxalilov717-sketch.github.io/Love-bot/webapp.html"
-WEBAPP_URL = "https://abduxalilov717-sketch.github.io/Love-bot/webapp.html"
+BASE_URL = "https://abduxalilov717-sketch.github.io/Love-bot"
+BIN_ID = "69cf7db6856a682189f67635"
+API_KEY = "$2a$10$vrr04luN8fRaLFxvBr09EOjRRIBm75kKW1EQJY7SBhElJaa1KZXUu"
+BIN_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID
+HEADERS = {"X-Master-Key": API_KEY, "Content-Type": "application/json"}
 
 logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("💕 Цитата о любви", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/webapp.html"))],
-        [InlineKeyboardButton("🧠 Викторина про меня", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/quiz.html"))],
-        [InlineKeyboardButton("📸 Наши фото", web_app=WebAppInfo(url="https://abduxalilov717-sketch.github.io/Love-bot/photos.html"))],
-    ]
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+def main_keyboard():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("Tsitata o lyubvi", web_app=WebAppInfo(url=BASE_URL + "/webapp.html"))],
+        [InlineKeyboardButton("Viktorina pro menya", web_app=WebAppInfo(url=BASE_URL + "/quiz.html"))],
+        [InlineKeyboardButton("Nashi foto", web_app=WebAppInfo(url=BASE_URL + "/photos.html"))],
+    ])
 
-    await update.message.reply_text(
-        "Привет! Выбери раздел ниже 💕",
-        reply_markup=reply_markup
-    )
 
-async def cmd_calendar(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [[InlineKeyboardButton("📅 Наши даты", web_app=WebAppInfo(url=WEBAPP_URL))]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Открываю календарь...", reply_markup=reply_markup)
+async def cmd_start(update, context):
+    await update.message.reply_text("Privet! Vyberi chto otkryt:", reply_markup=main_keyboard())
+
+
+async def cmd_menu(update, context):
+    await update.message.reply_text("Vyberi:", reply_markup=main_keyboard())
+
+
+async def get_photos():
+    async with httpx.AsyncClient() as client:
+        r = await client.get(BIN_URL, headers={"X-Master-Key": API_KEY})
+        return r.json().get("record", {}).get("photos", [])
+
+
+async def save_photos(photos):
+    async with httpx.AsyncClient() as client:
+        await client.put(BIN_URL, headers=HEADERS, json={"photos": photos})
+
+
+async def handle_photo(update, context):
+    photo = update.message.photo[-1]
+    caption = update.message.caption or ""
+    photos = await get_photos()
+    photos.append({
+        "file_id": photo.file_id,
+        "caption": caption,
+        "date": update.message.date.strftime("%d.%m.%Y")
+    })
+    await save_photos(photos)
+    await update.message.reply_text("Foto dobavleno! Vsego: " + str(len(photos)))
+
+
+async def cmd_clear(update, context):
+    await save_photos([])
+    await update.message.reply_text("Galereya ochistena!")
+
 
 def main():
     logger.info("Bot starting...")
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", cmd_start))
-    app.add_handler(CommandHandler("calendar", cmd_calendar))
+    app.add_handler(CommandHandler("menu", cmd_menu))
+    app.add_handler(CommandHandler("clear", cmd_clear))
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     logger.info("Bot started!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
+
 if __name__ == "__main__":
-    main()
-    if __name__ == "__main__":
     main()
