@@ -30,9 +30,9 @@ QUOTES = [
 
 def main_keyboard():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("Tsitata o lyubvi", web_app=WebAppInfo(url=BASE_URL + "/webapp.html"))],
-        [InlineKeyboardButton("Viktorina pro menya", web_app=WebAppInfo(url=BASE_URL + "/quiz.html"))],
-        [InlineKeyboardButton("Nashi foto", web_app=WebAppInfo(url=BASE_URL + "/photos.html"))],
+        [InlineKeyboardButton("💌 Цитата о любви", web_app=WebAppInfo(url=BASE_URL + "/webapp.html"))],
+        [InlineKeyboardButton("🧠 Викторина про меня", web_app=WebAppInfo(url=BASE_URL + "/quiz.html"))],
+        [InlineKeyboardButton("📸 Наши фото", web_app=WebAppInfo(url=BASE_URL + "/photos.html"))],
     ])
 
 
@@ -60,7 +60,7 @@ async def send_daily_quote(bot):
 
 
 async def cmd_start(update, context):
-    await update.message.reply_text("Privet! Vyberi chto otkryt:", reply_markup=main_keyboard())
+    await update.message.reply_text("Привет, моя любовь! 💕\n\nВыбери что открыть:", reply_markup=main_keyboard())
 
 
 async def cmd_sendnow(update, context):
