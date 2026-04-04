@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Как ты меня знаешь? 💕</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d0208;color:#f5e6ea;font-family:'Montserrat',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+/* SPLASH */
+#splash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center}
+.splash-heart{font-size:64px;animation:beat 2s ease-in-out infinite;filter:drop-shadow(0 0 25px rgba(200,73,90,.9));margin-bottom:20px;display:block}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.2)}30%{transform:scale(1)}45%{transform:scale(1.1)}}
+.splash-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-style:italic;font-weight:300;margin-bottom:10px;line-height:1.2}
+.splash-sub{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#c8495a;margin-bottom:12px;font-weight:200}
+.splash-desc{font-size:13px;color:rgba(245,230,234,.5);line-height:1.7;margin-bottom:36px;font-weight:200}
+.start-btn{background:linear-gradient(135deg,#c8495a,#8b1a2a);color:white;border:none;padding:16px 44px;border-radius:50px;font-size:13px;letter-spacing:3px;text-transform:uppercase;font-family:'Montserrat',sans-serif;font-weight:300;cursor:pointer;box-shadow:0 4px 30px rgba(200,73,90,.4);transition:all .3s}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(200,73,90,.6)}
+
+/* QUIZ */
+#quiz{flex:1;display:none;flex-direction:column;padding:0}
+.quiz-header{padding:20px 20px 0;background:linear-gradient(180deg,rgba(200,73,90,.1),transparent)}
+.progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.q-counter{font-size:11px;letter-spacing:3px;color:#c8495a;font-weight:200}
+.q-score{font-size:11px;letter-spacing:2px;color:rgba(245,230,234,.4);font-weight:200}
+.progress-bar{height:3px;background:rgba(200,73,90,.15);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(to right,#c8495a,#ff8a9a);border-radius:2px;transition:width .4s ease}
+
+.question-area{flex:1;padding:28px 20px 20px;display:flex;flex-direction:column}
+.question-num{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(200,73,90,.6);margin-bottom:12px;font-weight:200}
+.question-text{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;font-weight:300;line-height:1.4;margin-bottom:28px;color:#f5e6ea;flex:1}
+
+.options{display:flex;flex-direction:column;gap:10px}
+.option{background:rgba(255,255,255,.04);border:1px solid rgba(200,73,90,.2);border-radius:12px;padding:14px 18px;font-size:14px;color:#f5e6ea;cursor:pointer;transition:all .25s;text-align:left;font-family:'Montserrat',sans-serif;font-weight:200;position:relative;overflow:hidden}
+.option::before{content:'';position:absolute;top:0;left:0;width:0;height:100%;background:rgba(200,73,90,.1);transition:width .3s}
+.option:hover::before{width:100%}
+.option:hover{border-color:rgba(200,73,90,.5);transform:translateX(4px)}
+.option.correct{background:rgba(46,213,115,.15);border-color:#2ed573;color:#2ed573;transform:none}
+.option.wrong{background:rgba(200,73,90,.15);border-color:#c8495a;color:#c8495a;transform:none}
+.option.show-correct{background:rgba(46,213,115,.08);border-color:rgba(46,213,115,.4);color:rgba(46,213,115,.7)}
+.option:disabled,.option.disabled{cursor:default;pointer-events:none}
+
+.feedback{margin-top:16px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;min-height:28px;transition:opacity .3s}
+.feedback.correct{color:#2ed573}
+.feedback.wrong{color:#c8495a}
+
+.next-btn{margin-top:16px;background:linear-gradient(135deg,#c8495a,#8b1a2a);color:white;border:none;padding:13px;border-radius:10px;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:'Montserrat',sans-serif;font-weight:300;cursor:pointer;transition:all .3s;display:none;width:100%}
+.next-btn.show{display:block}
+
+/* RESULT */
+#result{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center}
+.result-emoji{font-size:72px;margin-bottom:20px;display:block;animation:pop .5s ease}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.result-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-style:italic;font-weight:300;margin-bottom:8px;line-height:1.3}
+.result-score{font-size:48px;font-weight:200;color:#c8495a;margin:16px 0;font-family:'Cormorant Garamond',serif}
+.result-percent{font-size:13px;color:rgba(245,230,234,.5);margin-bottom:20px;letter-spacing:2px}
+.result-msg{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:rgba(245,230,234,.7);line-height:1.6;margin-bottom:32px;padding:0 10px}
+.result-stars{font-size:28px;margin-bottom:24px;letter-spacing:4px}
+.retry-btn{background:transparent;border:1px solid rgba(200,73,90,.4);color:#c8495a;padding:13px 36px;border-radius:50px;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-family:'Montserrat',sans-serif;font-weight:300;cursor:pointer;transition:all .3s}
+.retry-btn:hover{background:rgba(200,73,90,.1)}
+
+/* orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.orb1{width:250px;height:250px;background:#c8495a;opacity:.1;top:-80px;right:-80px;animation:pulse 8s ease-in-out infinite}
+.orb2{width:180px;height:180px;background:#9b2335;opacity:.08;bottom:-40px;left:-40px;animation:pulse 8s ease-in-out infinite 3s}
+@keyframes pulse{0%,100%{opacity:.08}50%{opacity:.15}}
+#splash,#quiz,#result{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <span class="splash-heart">♥</span>
+  <div class="splash-sub">Викторина о любви</div>
+  <div class="splash-title">Как хорошо ты меня знаешь?</div>
+  <div class="splash-desc">55 вопросов про Шухратбека.<br>Проверь насколько хорошо ты знаешь своего любимого 💕</div>
+  <button class="start-btn" onclick="startQuiz()">Начать ✦</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz">
+  <div class="quiz-header">
+    <div class="progress-info">
+      <span class="q-counter" id="qCounter">Вопрос 1 из 55</span>
+      <span class="q-score" id="qScore">0 правильных</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <div class="question-area">
+    <div class="question-num" id="questionNum">01</div>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Следующий вопрос →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result">
+  <span class="result-emoji" id="resultEmoji">💕</span>
+  <div class="result-title" id="resultTitle"></div>
+  <div class="result-score" id="resultScore"></div>
+  <div class="result-percent" id="resultPercent"></div>
+  <div class="result-stars" id="resultStars"></div>
+  <div class="result-msg" id="resultMsg"></div>
+  <button class="retry-btn" onclick="retry()">Пройти снова ↺</button>
+</div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+const QUESTIONS=[
+  {q:"Как меня зовут?",o:["Шухратбек","Азизбек","Дониёр","Жасур"],a:0},
+  {q:"Сколько мне лет?",o:["18","19","20","21"],a:1},
+  {q:"В какой стране я живу?",o:["Казахстан","Узбекистан","Россия","Турция"],a:1},
+  {q:"В каком городе я сейчас?",o:["Самарканд","Бухара","Ташкент","Нукус"],a:2},
+  {q:"Какой мой любимый цвет?",o:["Синий","Красный","Зелёный","Чёрный"],a:0},
+  {q:"Мой любимый напиток?",o:["Кола","Липтон","Кофе","Сок"],a:1},
+  {q:"Люблю ли я сладкое?",o:["Очень люблю","Не очень","Вообще не ем","Иногда"],a:1},
+  {q:"Люблю ли я гулять ночью?",o:["Да","Нет","Иногда","Только летом"],a:0},
+  {q:"Я интроверт или экстраверт?",o:["Интроверт","Экстраверт","Амбиверт","Не знаю"],a:1},
+  {q:"Люблю ли я музыку?",o:["Да","Нет","Иногда","Только в дороге"],a:0},
+  {q:"Какую музыку я чаще слушаю?",o:["Рэп","Поп","UK Drill","Рок"],a:2},
+  {q:"Мой любимый исполнитель?",o:["Drake","Central Cee","Eminem","Travis Scott"],a:1},
+  {q:"Что я смотрю чаще?",o:["Фильмы","Сериалы","Аниме","Ничего"],a:1},
+  {q:"Люблю ли я аниме?",o:["Да","Нет","Иногда","Раньше любил"],a:1},
+  {q:"Моя любимая игра?",o:["PUBG","GTA V","Counter Strike 2","Dota 2"],a:2},
+  {q:"Люблю ли я спорт?",o:["Да, но не занимаюсь","Нет","Да, но здоровье мешает","Только иногда"],a:2},
+  {q:"Какой спорт мне нравится?",o:["Баскетбол","Футбол","Бокс","Волейбол"],a:1},
+  {q:"Люблю ли я узнавать новое?",o:["Да, каждый день","Нет","Иногда","Редко"],a:0},
+  {q:"Что я выбираю?",o:["Только отдых","Только работа","И отдых, и работу","Ничего"],a:2},
+  {q:"Люблю ли я путешествия?",o:["Да, но сейчас не время","Нет","Очень редко","Только с друзьями"],a:0},
+  {q:"Я быстро обижаюсь?",o:["Да","Нет","Иногда","Часто"],a:1},
+  {q:"Я ревнивый?",o:["Нет","Немного","Да, очень","Иногда"],a:2},
+  {q:"Я серьёзный или люблю шутить?",o:["Серьёзный","Люблю шутить","Зависит от ситуации","Не знаю"],a:1},
+  {q:"Я упрямый?",o:["Да","Нет","Иногда","Очень редко"],a:0},
+  {q:"Я доверчивый?",o:["Всем доверяю","Только близким","Никому","Иногда"],a:1},
+  {q:"Я романтичный?",o:["Да","Нет","Иногда","Не знаю"],a:0},
+  {q:"Я спокойный или вспыльчивый?",o:["Вспыльчивый","Спокойный","Иногда агрессивный","Разный"],a:1},
+  {q:"Люблю ли я внимание?",o:["Да","Нет","Иногда","Только от близких"],a:0},
+  {q:"Я больше логичный или эмоциональный?",o:["Логичный","Эмоциональный","И то, и другое","Не знаю"],a:2},
+  {q:"Я умею прощать?",o:["Да","Нет","Иногда","Сложно"],a:0},
+  {q:"Что для меня важнее?",o:["Деньги","Любовь","Карьера","Свобода"],a:1},
+  {q:"Как я проявляю заботу?",o:["Подарками","Словами","С любовью","Делами"],a:2},
+  {q:"Что я ценю в девушке?",o:["Красоту","Деньги","Её саму","Популярность"],a:2},
+  {q:"Я люблю больше?",o:["Переписки","Звонки","Без разницы","Видео-звонки"],a:2},
+  {q:"Я сильно ревную?",o:["Нет","Немного","Да","Очень сильно"],a:3},
+  {q:"Как я реагирую на игнор?",o:["Злюсь","Пишу много","Спокойно","Игнорю в ответ"],a:2},
+  {q:"Люблю ли я сюрпризы?",o:["Да","Нет","Иногда","Не люблю"],a:0},
+  {q:"Что может меня обидеть?",o:["Шутки","Игнор","Неуважение","Опоздание"],a:2},
+  {q:"Долго ли держу обиду?",o:["Да","Нет","Иногда","Очень долго"],a:1},
+  {q:"Верю ли я в настоящую любовь?",o:["Да","Нет","Сомневаюсь","Иногда"],a:0},
+  {q:"Во сколько я просыпаюсь?",o:["Рано","Поздно","По-разному","Всегда одинаково"],a:2},
+  {q:"Люблю ли я поздно ложиться?",o:["Да","Нет","Иногда","Редко"],a:0},
+  {q:"Что я делаю, когда грустно?",o:["Сплю","Гуляю","Слушаю музыку","Играю"],a:2},
+  {q:"Моя любимая еда?",o:["Пицца","Плов","Суши","Лагман"],a:1},
+  {q:"Моё любимое место?",o:["Дом","Кафе","Природа","Город"],a:2},
+  {q:"Что меня бесит?",o:["Погода","Люди","Работа","Учёба"],a:1},
+  {q:"Что делает меня счастливым?",o:["Деньги","Подарки","Её комплименты","Отдых"],a:2},
+  {q:"О чём я думаю чаще всего?",o:["О прошлом","О будущем","О деньгах","О людях"],a:1},
+  {q:"Моя цель сейчас?",o:["Найти работу","Закончить университет","Переехать","Заработать деньги"],a:1},
+  {q:"Что я никогда не прощу?",o:["Обман","Игнор","Измену","Ссору"],a:2},
+  {q:"Моя странная привычка?",o:["Молчать","Шутить глупо","Опаздывать","Спать много"],a:1},
+  {q:"Что я выберу?",o:["Гордость","Любовь","Деньги","Свободу"],a:1},
+  {q:"Что я делаю, когда злюсь?",o:["Кричу","Молчу","Контролирую себя","Ухожу"],a:2},
+  {q:"Что я делаю, когда скучаю?",o:["Пишу","Звоню","Сплю","Играю"],a:1},
+  {q:"Идеальное свидание для меня?",o:["Ресторан","Кино","Прогулка","Когда мы оба счастливы"],a:3},
+];
+
+// Перемешиваем вопросы
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
+
+let questions=[];
+let current=0;
+let score=0;
+let answered=false;
+
+function startQuiz(){
+  questions=shuffle(QUESTIONS);
+  current=0;score=0;answered=false;
+  document.getElementById('splash').style.display='none';
+  document.getElementById('quiz').style.display='flex';
+  showQuestion();
+}
+
+function showQuestion(){
+  const q=questions[current];
+  const total=questions.length;
+  document.getElementById('qCounter').textContent=`Вопрос ${current+1} из ${total}`;
+  document.getElementById('qScore').textContent=`${score} правильных`;
+  document.getElementById('progressFill').style.width=`${(current/total)*100}%`;
+  document.getElementById('questionNum').textContent=String(current+1).padStart(2,'0');
+  document.getElementById('questionText').textContent=q.q;
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('nextBtn').className='next-btn';
+  answered=false;
+
+  const opts=document.getElementById('options');
+  opts.innerHTML='';
+  q.o.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option';
+    btn.textContent=opt;
+    btn.onclick=()=>selectOption(i,btn);
+    opts.appendChild(btn);
+  });
+}
+
+function selectOption(idx,btn){
+  if(answered) return;
+  answered=true;
+  const q=questions[current];
+  const allOpts=document.querySelectorAll('.option');
+  allOpts.forEach(o=>o.classList.add('disabled'));
+
+  const fb=document.getElementById('feedback');
+  if(idx===q.a){
+    score++;
+    btn.classList.add('correct');
+    fb.textContent='Правильно! 💕';
+    fb.className='feedback correct';
+  } else {
+    btn.classList.add('wrong');
+    allOpts[q.a].classList.add('show-correct');
+    fb.textContent='Неправильно 💔';
+    fb.className='feedback wrong';
+  }
+  document.getElementById('qScore').textContent=`${score} правильных`;
+  document.getElementById('nextBtn').className='next-btn show';
+}
+
+function nextQuestion(){
+  current++;
+  if(current>=questions.length){showResult();return;}
+  showQuestion();
+}
+
+function showResult(){
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('result').style.display='flex';
+  const total=questions.length;
+  const pct=Math.round((score/total)*100);
+
+  let emoji,title,stars,msg;
+  if(pct>=90){
+    emoji='💍';title='Ты знаешь меня лучше всех!';stars='★★★★★';
+    msg='Ты читаешь мои мысли... Я люблю тебя так сильно 💕';
+  } else if(pct>=70){
+    emoji='💖';title='Ты знаешь меня очень хорошо!';stars='★★★★☆';
+    msg='Ты знаешь меня почти идеально. Я так рад что ты рядом ❤️';
+  } else if(pct>=50){
+    emoji='💝';title='Ты знаешь меня неплохо!';stars='★★★☆☆';
+    msg='Есть ещё много что узнать обо мне. Будем изучать друг друга? 😊';
+  } else if(pct>=30){
+    emoji='💌';title='Нам нужно больше разговаривать!';stars='★★☆☆☆';
+    msg='Ничего страшного — мы только начинаем наш путь вместе 💕';
+  } else {
+    emoji='🥺';title='Ты меня совсем не знаешь!';stars='★☆☆☆☆';
+    msg='Значит нам нужно больше времени вместе 😘 Я готов рассказать тебе всё!';
+  }
+
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=`${score}/${total}`;
+  document.getElementById('resultPercent').textContent=`${pct}% правильных ответов`;
+  document.getElementById('resultStars').textContent=stars;
+  document.getElementById('resultMsg').textContent=msg;
+}
+
+function retry(){
+  document.getElementById('result').style.display='none';
+  startQuiz();
+}
+</script>
+</body>
+</html>
