@@ -7,8 +7,8 @@ from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMar
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
 BOT_TOKEN = "8782299050:AAGhdm8O1LVXUKdvRzi4Gc4Wp7zjuq-Wl4A"
-CHAT_ID = "-5119427484"
-SEND_HOUR = 4
+CHAT_ID = "7619305230"
+SEND_HOUR = 9
 SEND_MINUTE = 0
 BASE_URL = "https://abduxalilov717-sketch.github.io/Love-bot"
 BIN_ID = "69cf7db6856a682189f67635"
